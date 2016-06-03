@@ -4,6 +4,7 @@ import (
     "time"
     "net"
     //"fmt"
+    "math"
 )
 
 const (
@@ -46,12 +47,12 @@ func (p *RexIpfsPeer) GetWaitTime() (time.Time, int) {
     var waitTime int
 
     if p.consecutive_errors > 0 {
-        waitTime = p.consecutive_errors * 5 // 5 seconds
+        waitTime = int(math.Pow(float64(p.consecutive_errors), 2) * 5) // 5 seconds
         return p.GetLastAction(), waitTime
     }
 
     if p.consecutive_nocontent > 0 {
-        waitTime = p.consecutive_nocontent * 5 // 5 seconds
+        waitTime = int(math.Pow(float64(p.consecutive_nocontent), 2) * 5) // 5 seconds
         if waitTime > 600 {
             waitTime = 600 //max 10 minutes
         }

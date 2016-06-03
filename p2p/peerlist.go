@@ -96,8 +96,6 @@ func (pl *aPeerList) GetNextPeer(lastActionSecondsAgo int) *RexIpfsPeer {
 	}
 
 	return bestPeer
-
-	//return pl.peers[pl.peersSorted[0]]
 }
 
 func (pl *aPeerList) RemoveOldPeers() {
