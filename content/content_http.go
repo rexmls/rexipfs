@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"time"
+	"strings"
 	"strconv"
 	"io"
 	"io/ioutil"
@@ -21,6 +22,11 @@ func HttpObjectGet(rw http.ResponseWriter, req *http.Request) (string, bool) {
 
 	var multihash = req.URL.Query().Get("arg")
 	fmt.Printf("Fetching %s...\n", multihash)
+
+	//if its a object get put Content-Type header for JSON
+	if strings.Contains(req.URL.String(), "object/get") {
+		rw.Header().Set("Content-Type", "application/json")
+	}
 
 	url := fmt.Sprintf("%s%s", UpstreamIPFSAddress, req.URL.String())
 
