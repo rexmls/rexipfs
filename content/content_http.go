@@ -100,7 +100,57 @@ func HttpAdd(rw http.ResponseWriter, req *http.Request) {
 		rw.Write(jsonBytes)
 	}
 
-	
+}
+
+func HttpObjectPut(rw http.ResponseWriter, req *http.Request) {
+
+	mediaType, params, err := mime.ParseMediaType(req.Header.Get("Content-Type"))
+	if err != nil {
+		rw.Write([]byte(err.Error()))
+		return
+	}
+	if strings.HasPrefix(mediaType, "multipart/") == false {
+		rw.Write([]byte("No multipart found"))
+		return
+	}
+
+	mr := multipart.NewReader(req.Body, params["boundary"])
+
+	p, err := mr.NextPart()
+	if err == io.EOF {
+		rw.Write([]byte(err.Error()))
+		return
+	}
+	if err != nil {
+		rw.Write([]byte(err.Error()))
+	}
+
+	// We now have the multipart file
+
+	var tmpObject shell.IpfsObject
+	tmpObject = shell.IpfsObject{}
+	jsonMerkleNode, _ := ioutil.ReadAll(p)
+	err = json.Unmarshal(jsonMerkleNode, &tmpObject)
+
+	myshell := shell.NewShell(UpstreamIPFSAddress)
+	ipfsResponse, err := myshell.ObjectPut(&tmpObject)
+
+	var jsonObj struct {
+		Name string
+		Hash string
+	}
+
+	jsonObj.Name = ipfsResponse
+	jsonObj.Hash = ipfsResponse
+
+	jsonBytes, _ := json.Marshal(jsonObj)
+
+	if err != nil {
+		rw.Write([]byte(err.Error()))	
+	} else {
+		rw.Write(jsonBytes)
+	}
+
 }
 
 func HttpShutdown(rw http.ResponseWriter, req *http.Request) {
