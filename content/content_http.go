@@ -8,6 +8,8 @@ import (
 	"strings"
 	"strconv"
 	"io"
+	"mime"
+	"mime/multipart"
 	"io/ioutil"
 	"bytes"
 	"encoding/json"
@@ -56,17 +58,39 @@ func HttpObjectGet(rw http.ResponseWriter, req *http.Request) (string, bool) {
 
 func HttpAdd(rw http.ResponseWriter, req *http.Request) {
 	myshell := shell.NewShell(UpstreamIPFSAddress)
-	res1, err := myshell.Add(req.Body)
 
-	fmt.Printf("Result = %s\n", res1)
+	var ipfsResult string
+
+	mediaType, params, err := mime.ParseMediaType(req.Header.Get("Content-Type"))
+	if err != nil {
+		rw.Write([]byte(err.Error()))
+		return
+	}
+	if strings.HasPrefix(mediaType, "multipart/") == false {
+		rw.Write([]byte("No multipart found"))
+		return
+	}
+
+	mr := multipart.NewReader(req.Body, params["boundary"])
+
+	p, err := mr.NextPart()
+	if err == io.EOF {
+		rw.Write([]byte(err.Error()))
+		return
+	}
+	if err != nil {
+		rw.Write([]byte(err.Error()))
+	}
+
+	ipfsResult, err = myshell.Add(p)
 
 	var jsonObj struct {
 		Name string
 		Hash string
 	}
 
-	jsonObj.Name = res1
-	jsonObj.Hash = res1
+	jsonObj.Name = ipfsResult
+	jsonObj.Hash = ipfsResult
 
 	jsonBytes, _ := json.Marshal(jsonObj)
 
