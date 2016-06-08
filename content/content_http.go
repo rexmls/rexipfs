@@ -12,7 +12,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"encoding/base64"
-	//"encoding/hex"
 	shell "github.com/ipfs/go-ipfs-api"
 )
 
@@ -53,6 +52,31 @@ func HttpObjectGet(rw http.ResponseWriter, req *http.Request) (string, bool) {
 	rw.(http.Flusher).Flush()
 
 	return multihash, true
+}
+
+func HttpAdd(rw http.ResponseWriter, req *http.Request) {
+	myshell := shell.NewShell(UpstreamIPFSAddress)
+	res1, err := myshell.Add(req.Body)
+
+	fmt.Printf("Result = %s\n", res1)
+
+	var jsonObj struct {
+		Name string
+		Hash string
+	}
+
+	jsonObj.Name = res1
+	jsonObj.Hash = res1
+
+	jsonBytes, _ := json.Marshal(jsonObj)
+
+	if err != nil {
+		rw.Write([]byte(err.Error()))	
+	} else {
+		rw.Write(jsonBytes)
+	}
+
+	
 }
 
 func HttpShutdown(rw http.ResponseWriter, req *http.Request) {

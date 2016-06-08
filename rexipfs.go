@@ -75,7 +75,7 @@ func main() {
 	serverMuxA.HandleFunc("/", apiCatchall)
 
 	serverMuxB := http.NewServeMux()
-	serverMuxB.HandleFunc("/api/v0/object/put", nil)
+	serverMuxB.HandleFunc("/api/v0/add", content.HttpAdd)
 	serverMuxB.HandleFunc("/api/v0/object/get", handleIPFSRequests)
 	serverMuxB.HandleFunc("/api/v0/cat", handleIPFSRequests)
 	serverMuxB.HandleFunc("/shutdown", content.HttpShutdown)
