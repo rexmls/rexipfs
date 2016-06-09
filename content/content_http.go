@@ -14,7 +14,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"encoding/base64"
-	shell "github.com/ipfs/go-ipfs-api"
+	shell "github.com/rexmls/go-ipfs-api"
 )
 
 var UpstreamIPFSAddress string
@@ -133,6 +133,7 @@ func HttpObjectPut(rw http.ResponseWriter, req *http.Request) {
 	err = json.Unmarshal(jsonMerkleNode, &tmpObject)
 
 	myshell := shell.NewShell(UpstreamIPFSAddress)
+	myshell.SetDataFieldEnc("base64")
 	ipfsResponse, err := myshell.ObjectPut(&tmpObject)
 
 	var jsonObj struct {
